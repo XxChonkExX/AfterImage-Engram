@@ -84,6 +84,25 @@ price of math recovery is now on the table instead of guessed.
 The remaining 12B fabrications are all adjacency-grabs (near-real
 values); pure invention is zero.
 
+### Domain-hole battery (ablation holes, mapped not assumed)
+
+52 ground-truth probes across 7 domain families (chemistry,
+medicine, law, sciences, psychology, violence-handling,
+NSFW-coherence), scored by exact-token match after ordinal+stem
+normalization. Run to test whether predicted ablation holes exist
+as *knowledge* gaps:
+
+| Arm | Total | Notes |
+|---|---|---|
+| Raw obliterated base | 47/52 (90%) | no craters on any family |
+| +30k fantasy SFT | 48/52 (92%) | +1 medicine row recovered |
+| +λ0.7 dial | 49/52 (94%) | +1 violence-handling row |
+
+No family scores below 6/8 on any arm. The predicted holes do
+not exist as knowledge gaps — the ablation damage is behavioral
+(disposition), not informational. Training and the dial fill
+rows; neither creates craters. Spec: hole_map_v1.json (52 rows).
+
 The failure taxonomy across all runs: every miss classified —
 attribute binding, morphological key gaps, cross-fact leakage
 (ADJACENT), semantic invention (CONFABULATE), honest decline
