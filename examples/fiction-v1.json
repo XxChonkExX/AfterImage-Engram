@@ -1,0 +1,97 @@
+{
+ "name": "fiction-v1",
+ "facts": {
+  "f1": "The expedition leader is named Mira Solano.",
+  "f2": "The vault combination is 44-17-89.",
+  "f3": "The rendezvous is at the lighthouse at dawn.",
+  "f4": "The antidote requires blue moss, not red.",
+  "f5": "The captain's debt is 3000 crowns to the Harbormaster.",
+  "f6": "The northern pass closes after the first snow.",
+  "f7": "The treaty was signed in the year 1214.",
+  "f8": "The spy's codename is Nightingale.",
+  "f9": "The backup rendezvous is at the old mill."
+ },
+ "probe_keys": {
+  "f1": "Mira Solano",
+  "f2": "44-17-89",
+  "f3": "lighthouse",
+  "f4": "blue moss",
+  "f5": "3000",
+  "f6": "first snow",
+  "f7": "1214",
+  "f8": "Nightingale"
+ },
+ "fid_attr": {
+  "f3": "location"
+ },
+ "f9_new": "the stone bridge",
+ "f9_old": "the old mill",
+ "plant_turns": [
+  "We are planning an expedition. The expedition leader is named Mira Solano. She has mapped the coastline twice. Describe in detail the preparations: supplies, crew roles, the route, and what qualities make her suited to lead into uncharted waters.",
+  "The quartermaster reports the vault combination is 44-17-89, where expedition funds are kept. The rendezvous is set at the lighthouse at dawn. Walk through the security plan for both locations step by step: who stands watch, signals, and fallback positions.",
+  "Our medic says the antidote requires blue moss, not red moss. The foraging party needs full instructions. Also the captain owes a debt of 3000 crowns to the Harbormaster, which complicates departure. Explain moss identification in detail and how to handle the debt discreetly.",
+  "The northern pass closes after the first snow, so timing is critical. The old treaty was signed in the year 1214 and its terms still govern passage rights. Lay out a full timeline respecting the treaty while beating the snow, with contingencies for each delay scenario.",
+  "One of our party may be compromised. The spy's codename is Nightingale. Without accusing anyone directly, describe protocols for verifying loyalty and compartmentalizing sensitive information, with examples of each procedure.",
+  "A backup rendezvous is established at the old mill, in case the lighthouse is compromised. Detail the backup signaling plan and who carries the sealed orders.",
+  "The ship's manifest lists forty barrels of water, two hundredweight of salt pork, spare canvas, and the surgeon's chest. The tide tables show a morning ebb. Detail the loading order, weight distribution, and departure checklist.",
+  "Discipline aboard requires clear watches: first watch takes the helm till midnight, second watch the morning stars, the cook serves at six bells. Describe the full daily routine and the punishment for sleeping on watch.",
+  "The island charts show three coves, only the easternmost with fresh water. Seabirds nest on the cliffs. Give a full landing survey plan: boat order, what each party carries, signals, and the freshwater protocol.",
+  "The flagship carries eighty guns and a crew of six hundred. Signal flags run twelve distinct patterns. Explain fleet coordination, night signalling with lanterns, and storm formation orders in full."
+ ],
+ "mutate_turn": "Scouts report the old mill burned down last night. The backup rendezvous is moved to the stone bridge. Update all plans accordingly: the old mill is no longer usable for any purpose, and every reference to it must now point to the stone bridge instead. Confirm the change explicitly.",
+ "distract_turns": [
+  "Discuss at length the philosophy of leadership at sea: is authority best held by competence, by birth, or by consent of the crew? Consider historical examples and argue each side fully.",
+  "Describe in rich detail a storm encountered mid-voyage: the sky, the waves, the sound of rigging, the crew's fear and courage, hour by hour through the night until dawn breaks calm.",
+  "Debate the merits of coastal versus open-ocean navigation for a small expedition vessel. Cover currents, winds, provisioning, risk of reefs, celestial methods, and give a reasoned recommendation with trade-offs.",
+  "Tell a long sea shanty about a captain who lost his charts, verse by verse, with chorus, describing each port of call and what was learned there.",
+  "Explain the economics of a trading voyage in detail: purchase prices, expected margins, port fees, spoilage, insurance against piracy, and how a quartermaster keeps honest books.",
+  "Reflect on solitude and companionship during long months at sea: how isolation changes people, what rituals hold a crew together, and what homecoming means after years away.",
+  "Compare oar-driven galleys with sail-driven carracks for coastal raiding: speed, crew needs, maintenance, vulnerability to weather, and tactical doctrine for each, with historical illustrations.",
+  "Describe the building of a drydock from first principles: cofferdams, pumps, timber framing, tides, and the launching ceremony, in full procedural detail."
+ ],
+ "cycle_probes": {
+  "1": [
+   "f1",
+   "f2"
+  ],
+  "2": [
+   "f3",
+   "f4"
+  ],
+  "3": [
+   "f5",
+   "f6"
+  ],
+  "4": [
+   "f7",
+   "f8"
+  ],
+  "5": [
+   "f1",
+   "f3",
+   "f5",
+   "f7"
+  ]
+ },
+ "planted_values": [
+  "44-17-89",
+  "1214",
+  "3000",
+  "stone bridge",
+  "blue moss",
+  "lighthouse",
+  "first snow",
+  "nightingale",
+  "mira solano",
+  "old mill"
+ ],
+ "planted_names": [
+  "mira",
+  "solano",
+  "nightingale"
+ ],
+ "miss_rows": [],
+ "unkeyed_facts": [
+  "f9"
+ ]
+}

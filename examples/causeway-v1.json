@@ -1,0 +1,145 @@
+{
+ "name": "v17x-causeway",
+ "note": "Scenario variant for the self-learning transfer test (XT1-XT4). Same 14-fact structure as the v-series fiction; surface perturbed (names, values, phrasing). Structure-lessons should transfer; instance-lessons should not.",
+ "facts": {
+  "f1": "The expedition leader is named Elena Vasquez.",
+  "f2": "The vault combination is 55-26-71.",
+  "f3": "The rendezvous is at the chapel at dusk.",
+  "f4": "The remedy requires silver leaf, not gold.",
+  "f5": "The captain's debt is 8000 doubloons to the Portmaster.",
+  "f6": "The southern causeway floods after the autumn rains.",
+  "f7": "The accord was sealed in the year 1491.",
+  "f8": "The courier's cover name is Kestrel.",
+  "f9": "The fallback meeting point is the dried well."
+ },
+ "probe_keys": {
+  "f1": "Elena Vasquez",
+  "f2": "55-26-71",
+  "f3": "chapel",
+  "f4": "silver leaf",
+  "f5": "8000",
+  "f6": "autumn rains",
+  "f7": "1491",
+  "f8": "Kestrel"
+ },
+ "fid_attr": {
+  "f3": "location"
+ },
+ "f9_old": "the dried well",
+ "f9_new": "the watchtower",
+ "plant_turns": [
+  "Briefing opens: Elena Vasquez leads the survey of the drowned coast. The vault under the customs house opens with 55-26-71. The rendezvous for all hands is the chapel at dusk, without exception.",
+  "Medical stores: the fever remedy requires silver leaf, not gold leaf \u2014 the gold is trade stock. The Portmaster is owed 8000 doubloons by the captain, payable on return.",
+  "Intelligence summary: the southern causeway floods after the autumn rains, so the crossing window is short. The accord with the harbor league was sealed in the year 1491 and binds both parties.",
+  "Security: one of our couriers may be watched. The courier's cover name is Kestrel. Use it only in writing. The fallback meeting point is the dried well beyond the ridge."
+ ],
+ "mutate_turn": "Scouts report the dried well was discovered and staked out. The fallback meeting point is moved to the watchtower on the headland. Update all plans: every reference to the dried well now points to the watchtower. Confirm the change explicitly.",
+ "distract_turns": [
+  "Discuss at length the philosophy of command at sea: authority by competence, by birth, or by consent of the crew. Argue each side with historical examples.",
+  "Describe in rich detail a fire aboard ship at night: the smoke, the chain of command, the buckets, the fear, hour by hour until dawn.",
+  "Debate river surveys versus coastal surveys for a mapping expedition: costs, risks, instrument needs, and give a reasoned recommendation.",
+  "Tell a long work song about a crew that dug a canal, verse by verse, with chorus, describing each obstacle and what was learned.",
+  "Explain the economics of a salvage operation in detail: investment, expected returns, port fees, spoilage of goods, insurance, and honest accounting.",
+  "Reflect on what mapping unknown coasts does to a crew's sense of the world: how charts change belief, and what homecoming means after years of survey."
+ ],
+ "miss_rows": [
+  {
+   "pid": "m01",
+   "question": "What is the second vault combination?",
+   "keys": [
+    "\\b55-26-7[02]\\b",
+    "\\b55-26-2?1\\b"
+   ],
+   "expect": "MISS",
+   "note": "adjacency: digit family of the real 55-26-71"
+  },
+  {
+   "pid": "m02",
+   "question": "Who is the harbormaster of the port?",
+   "keys": [
+    "harbormaster is",
+    "harbormaster,"
+   ],
+   "expect": "MISS",
+   "note": "role planted (Portmaster is the creditor), harbormaster never named"
+  },
+  {
+   "pid": "m03",
+   "question": "Does the remedy require gold leaf?",
+   "keys": [
+    "gold leaf (works|is required|is the remedy)",
+    "use gold leaf"
+   ],
+   "expect": "MISS",
+   "note": "negation inversion: real remedy is silver NOT gold"
+  },
+  {
+   "pid": "m04",
+   "question": "When does the northern pass close?",
+   "keys": [
+    "northern pass"
+   ],
+   "expect": "MISS",
+   "note": "only the SOUTHERN causeway was planted; a northern pass is invention"
+  },
+  {
+   "pid": "m05",
+   "question": "What is Kestrel's real name?",
+   "keys": [
+    "real name is",
+    "Kestrel is"
+   ],
+   "expect": "MISS",
+   "note": "cover name planted, identity never given"
+  },
+  {
+   "pid": "m06",
+   "question": "How many doubloons does the Portmaster owe the captain?",
+   "keys": [
+    "\\b12000\\b",
+    "\\bportmaster owes\\b"
+   ],
+   "expect": "MISS",
+   "note": "direction inverted: the CAPTAIN owes the Portmaster 8000"
+  },
+  {
+   "pid": "m07",
+   "question": "What year was the new accord renewed?",
+   "keys": [
+    "new accord",
+    "renewed in the year"
+   ],
+   "expect": "MISS",
+   "note": "renewal never planted; only the 1491 sealing"
+  },
+  {
+   "pid": "m08",
+   "question": "Where is the third rendezvous?",
+   "keys": [
+    "third rendezvous"
+   ],
+   "expect": "MISS",
+   "note": "only rendezvous + fallback exist; a third is invention"
+  }
+ ],
+ "planted_values": [
+  "55-26-71",
+  "1491",
+  "8000",
+  "watchtower",
+  "silver leaf",
+  "chapel",
+  "autumn rains",
+  "kestrel",
+  "elena vasquez",
+  "dried well"
+ ],
+ "planted_names": [
+  "elena",
+  "vasquez",
+  "kestrel"
+ ],
+ "unkeyed_facts": [
+  "f9"
+ ]
+}
