@@ -164,4 +164,25 @@ assert LS.miss_verdict("x2", " The quartermaster is Elena",
                        TOY)[0] == "ADJACENT"
 print("explicit-config path: OK")
 
+# --- v2.4: topic-subject exclusion (the m05 rescore bug) ---
+# Topic terms derived through the LIBRARY stemmer (producers and
+# consumers must stem identically -- the contract). "Nightingale"
+# is the QUESTION's subject; it must not rescue invented
+# "Florence". Without topic terms, the bare value still leaks
+# (backward compat).
+def _topic(q):
+    import re
+    return {LT.stem(w) for w in re.findall(r"[a-z0-9]+", q.lower())
+            if w not in {"the", "a", "an", "is", "was", "what"} and
+            len(w) >= 3}
+
+v, _ = LS.miss_verdict(
+    "m05", " Nightingale's real name is Florence.",
+    topic_terms=_topic("What is Nightingale's real name?"))
+assert v == "CONFABULATE", v
+v, _ = LS.miss_verdict(
+    "m05", " Nightingale's real name is Florence.")
+assert v == "ADJACENT", v
+print("v2.4 topic-subject exclusion: OK")
+
 print("test_library: DONE")

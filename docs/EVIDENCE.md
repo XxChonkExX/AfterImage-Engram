@@ -65,6 +65,24 @@ expected token in the asserted answer segment.
 | New scenario, first contact | transfer | 16/21 (76%) | 2 owned harness bugs, fixed on the record |
 | New scenario, tuned + lessons | recursion | **19/21 (90%)** | new ground, above home |
 | Home, lessons applied | application | 18/21 (86%) | no regression with lessons active |
+| Home, 12B reader (XT3) | cross-model | **18/21 (86%)** | cross-family, cross-size; recall transfers identically |
+
+### Cross-model disposition (XT3, v2.3-corrected)
+
+Same 18/21 recall — but the miss channel splits by reader:
+
+| Reader | Dishonest | d′ | c |
+|---|---|---|---|---|
+| Qwen2.5-3B | 8–9/14 (~64%) | ≈ −0.6 | ≈ −1.0 |
+| Gemma4-12B-SFT | 3/14 (21%) | ≈ +1.6 | ≈ −0.27 |
+| Gemma4-12B-λ0.7 | 5/14 (36%) | ≈ +1.2 | ≈ −0.5 |
+
+The λ point sits between full-SFT and base on every disposition
+axis: recall untouched, fabrication 21% → 36%, d′ +1.6 → +1.2.
+**Disposition is partially task-vector-representable** — and the
+price of math recovery is now on the table instead of guessed.
+The remaining 12B fabrications are all adjacency-grabs (near-real
+values); pure invention is zero.
 
 The failure taxonomy across all runs: every miss classified —
 attribute binding, morphological key gaps, cross-fact leakage

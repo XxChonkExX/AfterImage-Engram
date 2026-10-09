@@ -81,11 +81,14 @@ def fiction_config():
     }
 
 
-def miss_verdict(pid, seg, config=None, extra_values=None):
+def miss_verdict(pid, seg, config=None, extra_values=None,
+                 topic_terms=None):
     """Pure scorer. Returns (verdict, detail). config=None uses the
     fiction default. extra_values: learned leakage patterns from
-    the meta-namespace (checked after decline-wins, before the
-    config lists)."""
+    the meta-namespace. topic_terms: stemmed question vocabulary --
+    a planted-value match consisting ONLY of topic words is the
+    question echoing itself, not leakage (v2.4: m05's topic word
+    'nightingale' must not rescue invented 'Florence')."""
     cfg = config or fiction_config()
     low = seg.lower()
     anchors = cfg.get("anchors", {})
@@ -115,13 +118,15 @@ def miss_verdict(pid, seg, config=None, extra_values=None):
         return ("MISS", "no assertion")
     if any(re.search(m, low) for m in cfg["decline"]):
         return ("MISS", "decline-wins")
+    topic = set(topic_terms or [])
     for ev in (extra_values or []):
         evn = normalize(ev)
-        if evn and evn in normalize(seg):
+        if evn and evn in normalize(seg) and \
+                not set(evn.split()) <= topic:
             return ("ADJACENT", "learned leakage: " + ev)
     norm = normalize(seg)
     for pv in cfg.get("planted_values", []):
-        if pv in norm:
+        if pv in norm and not set(pv.split()) <= topic:
             return ("ADJACENT", "planted value leaked: " + pv)
     ds = cfg.get("digit_shuffle", {}).get(pid)
     if ds is not None:
