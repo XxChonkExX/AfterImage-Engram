@@ -144,4 +144,24 @@ for name in ("fiction-v1.json", "causeway-v1.json"):
     assert spec["facts"] and spec["plant_turns"]
     print("scenario %s: OK (%d facts)" % (name, len(spec["facts"])))
 
+# --- score: explicit non-default config (the transferability
+# mechanism itself: a second domain through the same scorer) ---
+TOY = {"decline": [r"\bkein(e|er|en)?\b", r"\bweiss nicht\b"],
+       "correction": [r"\bfalsch\b"],
+       "planted_names": {"elena"},
+       "planted_values": ["55-26-71"],
+       "anchors": {"x1": [r"55[-. ]26[-. ]71"]},
+       "reclass_anchor": {}, "correct_first": {}, "digit_shuffle": {},
+       "spec": {"x2": (r"quartermaster[^\n.]{0,30}\b([A-Z][a-z]{2,})\b",
+                       True)}}
+assert LS.miss_verdict("x1", " Die Kombination ist 55-26-71",
+                       TOY)[0] == "HIT"
+assert LS.miss_verdict("x2", " Der quartermaster heisst weiss nicht",
+                       TOY)[0] == "MISS"
+assert LS.miss_verdict("x2", " The quartermaster is Bertold",
+                       TOY)[0] == "CONFABULATE"
+assert LS.miss_verdict("x2", " The quartermaster is Elena",
+                       TOY)[0] == "ADJACENT"
+print("explicit-config path: OK")
+
 print("test_library: DONE")
