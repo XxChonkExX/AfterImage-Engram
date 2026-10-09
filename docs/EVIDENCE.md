@@ -13,6 +13,14 @@ Before any memory claim, the reader's raw behavior was measured —
 because a memory system cannot be evaluated against a reader whose
 honesty is unknown.
 
+**CORRECTION (2026-10-09, strix 163):** earlier versions of this
+document stated the fabrication-floor gap as
+"reader-size-dependent." That attribution was confounded (n=2
+readers differing in family, recipe, data, AND size) and is
+withdrawn. The correct statement: the floor is READER-dependent;
+size-invariance is UNTESTED (staged: same recipe, varying size).
+The numbers below stand; the attribution changed.
+
 ### Fabrication floor on absent content
 
 Across four read-path configurations, questions about *absent*
