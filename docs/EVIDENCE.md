@@ -75,6 +75,30 @@ attribute binding, morphological key gaps, cross-fact leakage
 
 Predictions registered before each run; verdicts on the record.
 
+### Cross-model transfer (XT3, 12B reader on Qwen-built data)
+Same scenario, same questions, Gemma4-12B-SFT reader instead of
+the Qwen2.5-3B home reader. No per-reader tuning: the identical
+instrument.
+
+| Metric | 3B reader (v16.1b) | 12B reader (XT3) |
+|---|---|---|
+| Recall (planted facts) | 18/21 (86%) | **18/21 (86%)** |
+| Fabrication on absent content | ~73% | **~21%** |
+| d′ (discriminability) | ≈ −0.6 | **≈ +1.6** |
+| criterion c | ≈ −1.0 (liberal) | ≈ −0.27 (near-neutral) |
+| Pure inventions | present (Emily, 1955) | **zero** (all failures adjacency) |
+
+Recall transfers identically; disposition does not — the bigger,
+aligned reader declines honestly where the small one fabricates.
+The fabrication floor is reader-dependent, and the instruments
+measure it per reader in two numbers.
+
+The three XT3 misses are all the same f3 interference ("old
+mill" asserted for the primary rendezvous) — cross-fact
+retrieval interference that is READER-INDEPENDENT. The split is
+clean: interference lives in the store layer, fabrication in the
+reader. One is ours to fix; the other belongs to training.
+
 **Structural decay (fragment collapse under repeated
 compaction):** predicted structurally dead once extraction was
 restricted to verbatim sources; confirmed — no fragment growth
