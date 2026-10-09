@@ -3,8 +3,22 @@ import os
 import sys
 import tempfile
 
-sys.path.insert(0, r"C:\Users\mikeh\Documents\New OpenCode Project\AfterImage-Engram\src")
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from afterimage_store import SessionStore
+
+# Local-only replay: the frozen run artifacts live on the lab box.
+# Off-box (CI, clones), this test skips cleanly -- the portable
+# suite is test_store.py + test_rungs.py.
+REPDIR = os.environ.get(
+    "AFTERIMAGE_REPLAY_DIR",
+    r"G:\New folder\learner_staging\engram_proto_v17_1b")
+METAF = os.environ.get(
+    "AFTERIMAGE_META",
+    r"G:\New folder\learner_staging\engram_meta.json")
+if not (os.path.isdir(REPDIR) and os.path.isfile(METAF)):
+    print("replay skipped (no frozen artifacts; set "
+          "AFTERIMAGE_REPLAY_DIR to run)")
+    sys.exit(0)
 
 # Backward-compat replay: v17.1b's frozen artifacts migrate into
 # the session store with zero loss. This is the proof that the
@@ -14,14 +28,14 @@ tmp = tempfile.mkdtemp(prefix="afterimage_replay_")
 store = SessionStore(os.path.join(tmp, "t.db"),
                      os.path.join(tmp, "artifacts"))
 rep = json.load(open(
-    r"G:\New folder\learner_staging\engram_proto_v17_1b\report.json",
+    os.path.join(REPDIR, "report.json"),
     encoding="utf-8"))
 store.create_session("v17.1b-replay", "fiction-v1", "qwen2.5-3b",
                      {"source": "frozen-report"})
 
 import glob
 engrams = {}
-for f in glob.glob(r"G:\New folder\learner_staging\engram_proto_v17_1b\engram_*.json"):
+for f in glob.glob(os.path.join(REPDIR, "engram_*.json")):
     b = json.load(open(f, encoding="utf-8"))
     engrams[b["cycle"]] = b
 final = engrams[max(engrams)]
@@ -60,7 +74,7 @@ for c, b in sorted(engrams.items()):
 
 # meta lessons
 meta = json.load(open(
-    r"G:\New folder\learner_staging\engram_meta.json", encoding="utf-8"))
+    METAF, encoding="utf-8"))
 kept, dropped = store.add_lessons(meta["lessons"])
 
 print(f"replay: {n_verd} verdicts, {n_ghost} ghost entries, "

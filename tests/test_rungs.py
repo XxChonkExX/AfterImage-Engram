@@ -2,7 +2,7 @@ import os
 import sys
 import tempfile
 
-sys.path.insert(0, r"C:\Users\mikeh\Documents\New OpenCode Project\AfterImage-Engram\src")
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from afterimage_store import SessionStore
 from afterimage_api import SessionAPI
 

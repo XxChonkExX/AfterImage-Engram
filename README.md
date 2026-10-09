@@ -93,6 +93,36 @@ scorecards: [docs/EVIDENCE.md](docs/EVIDENCE.md).
 
 ---
 
+## Quickstart (30 seconds, zero dependencies)
+
+```bash
+pip install git+https://github.com/XxChonkExX/AfterImage-Engram.git
+```
+
+```python
+from afterimage_store import SessionStore
+from afterimage_api import SessionAPI
+
+store = SessionStore("memory.db", "artifacts/")
+store.create_session("demo", "fiction-v1", "any-reader")
+store.add_records("demo", [
+    "The spy's codename is Nightingale.",
+    "The vault opens with 44-17-89.",
+])
+api = SessionAPI(store)
+
+print(api.ask("demo", "What is the spy's codename?"))
+# {'status': 'records', 'records': ["The spy's codename is ..."], ...}
+
+print(api.ask("demo", "What is the Pale Cascade protocol?"))
+# {'status': 'absent', 'note': 'No relevant records retrieved.', ...}
+```
+
+A read returns either records-with-provenance or a certified
+absence — never an empty payload to interpret, never a silent miss.
+
+---
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md) — the layer model, store
