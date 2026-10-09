@@ -121,6 +121,36 @@ is the current workstream.
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the staged plan and the
 registered triggers that gate each stage.
 
+## Related work (September 2026 cluster)
+
+The small-model memory niche heated up fast. Four current papers
+work adjacent ground; each is missing something Afterimage ships:
+
+- **Learning from Failures (arXiv 2609.28003)** — heterogeneous
+  graph memory preserving causal context of failed actions. The
+  closest cousin to our ghost ledger. What they lack: falsifiers,
+  a scoring taxonomy, and any abstention measurement.
+- **From Retrieval to Weights (arXiv 2609.10155)** — per-corpus
+  DoRA adapters writing retrieved text into small-model weights.
+  Validates the adapter direction; has no abstention gate, which
+  is exactly what our eval stack supplies.
+- **RAIM (arXiv 2609.39229)** — aggregating cheap models for
+  hallucination detection. Our cross-reader verdict agreement is
+  the same instinct with measured per-reader baselines.
+- **PASC (arXiv 2605.18812)** — joint coverage guarantees across
+  multi-stage pipelines. The formal version of our coupled-
+  metrics gate.
+
+What none of them ship: a fabrication floor measured on absent
+content, a per-fact retention curve, a miss taxonomy with
+falsifiers, or a discrimination metric (d′) separating reader
+knowledge from reader disposition. The niche has builders; it
+has no measurers. That is this repo's position.
+
+Note on scope: frontier labs certainly hold unpublished work in
+this space. Our claims are against the published record only —
+and against our own falsifiers first.
+
 ## Author
 
 **Michael Harding** — design, architecture, and the measurement
