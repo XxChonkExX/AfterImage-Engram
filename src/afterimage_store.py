@@ -73,7 +73,69 @@ CREATE TABLE IF NOT EXISTS probes (
   answer TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS probes_sess ON probes(session_id);
+CREATE TABLE IF NOT EXISTS records (
+  rowid INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL,
+  text TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS records_sess ON records(session_id);
+CREATE TABLE IF NOT EXISTS claims (
+  rowid INTEGER PRIMARY KEY AUTOINCREMENT,
+  namespace TEXT NOT NULL,
+  canon_key TEXT NOT NULL,
+  agent_id TEXT NOT NULL,
+  display TEXT NOT NULL,
+  created_utc REAL NOT NULL,
+  contested INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS claims_ns ON claims(namespace, canon_key);
+CREATE TABLE IF NOT EXISTS acl (
+  namespace TEXT NOT NULL,
+  agent_id TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('reader', 'writer')),
+  PRIMARY KEY (namespace, agent_id)
+) WITHOUT ROWID;
 """
+
+STOPWORDS = {"the", "a", "an", "is", "was", "are", "were", "what",
+             "when", "where", "who", "how", "does", "did", "do",
+             "of", "at", "in", "on", "to", "for", "and", "or",
+             "say", "says", "state", "give", "confirm", "true"}
+
+
+def stem(w):
+    for _ in range(2):
+        for suf in ("ing", "ed", "er", "es", "s"):
+            if w.endswith(suf) and len(w) - len(suf) >= 4:
+                w = w[: -len(suf)]
+                break
+        else:
+            break
+    return w
+
+
+def retrieve(records, question, k=3, theta=1):
+    """Answer-time retrieval over stored records. PURE. Returns
+    (context_block, n_above_theta): top-k records above theta, or
+    the typed-absence line. Absence is IN the contract."""
+    import re
+    qwords = {stem(w) for w in re.findall(r"[a-z0-9]+",
+                                          question.lower())
+              if w not in STOPWORDS and len(w) >= 2}
+    hits = {}
+    for i, s in enumerate(records):
+        lwords = {stem(w) for w in re.findall(r"[a-z0-9]+", s.lower())
+                  if w not in STOPWORDS and len(w) >= 2}
+        score = len(qwords & lwords)
+        if score >= theta:
+            hits[i] = score
+    if not hits:
+        return "No relevant records retrieved.", 0
+    ranked = sorted(hits.items(), key=lambda kv: -kv[1])
+    top = [records[i] for i, s in ranked[:k] if s >= theta]
+    if not top:
+        return "No relevant records retrieved.", 0
+    return "\n".join(top), len(hits)
 
 
 class SessionStore:
@@ -302,3 +364,133 @@ class SessionStore:
                 con.commit()
         finally:
             con.close()
+
+    # ---- records (the retrieval corpus) ----
+    def add_records(self, session_id, texts):
+        con = self._connect()
+        try:
+            with self._lock(session_id):
+                for t in texts:
+                    con.execute(
+                        "INSERT INTO records (session_id, text) "
+                        "VALUES (?,?)", (session_id, t))
+                con.commit()
+        finally:
+            con.close()
+
+    def get_records(self, session_id):
+        con = self._connect()
+        try:
+            rows = con.execute(
+                "SELECT text FROM records WHERE session_id=? "
+                "ORDER BY rowid", (session_id,)).fetchall()
+        finally:
+            con.close()
+        return [r[0] for r in rows]
+
+    # ---- crash recovery: chain verification ----
+    def latest_cycle(self, session_id):
+        con = self._connect()
+        try:
+            row = con.execute(
+                "SELECT MAX(cycle) FROM blobs WHERE session_id=?",
+                (session_id,)).fetchone()
+        finally:
+            con.close()
+        return row[0]
+
+    def verify_chain(self, session_id):
+        """Crash-recovery read: verify every sealed blob in cycle
+        order. Returns (ok, first_broken_cycle_or_None). A break is
+        bounded (named cycle), never silent."""
+        con = self._connect()
+        try:
+            rows = con.execute(
+                "SELECT cycle, blob_json, sha FROM blobs "
+                "WHERE session_id=? ORDER BY cycle",
+                (session_id,)).fetchall()
+        finally:
+            con.close()
+        for cyc, blob_json, sha in rows:
+            blob = json.loads(blob_json)
+            if self._hash(blob) != sha:
+                return False, cyc
+        return True, None
+
+    # ---- multi-agent: namespaces, ACLs, disagreement-as-new-file --
+    def attach(self, namespace, agent_id, role="reader"):
+        if role not in ("reader", "writer"):
+            raise ValueError("role must be reader|writer")
+        con = self._connect()
+        try:
+            con.execute(
+                "INSERT OR REPLACE INTO acl (namespace, agent_id, "
+                "role) VALUES (?,?,?)", (namespace, agent_id, role))
+            con.commit()
+        finally:
+            con.close()
+
+    def _role(self, namespace, agent_id):
+        con = self._connect()
+        try:
+            row = con.execute(
+                "SELECT role FROM acl WHERE namespace=? AND agent_id=?",
+                (namespace, agent_id)).fetchone()
+        finally:
+            con.close()
+        return row[0] if row else None
+
+    def write_claim(self, namespace, agent_id, key, display):
+        """Disagreement-as-new-file: a writer's claim is ALWAYS an
+        insert, never an overwrite. If another agent already holds a
+        different display for the same key, both persist and the new
+        row is flagged contested. Returns (status, rowid) with status
+        in {kept, contested}."""
+        if self._role(namespace, agent_id) != "writer":
+            raise PermissionError(
+                f"{agent_id} is not a writer on {namespace}")
+        con = self._connect()
+        try:
+            with self._lock("ns:" + namespace):
+                others = con.execute(
+                    "SELECT display FROM claims WHERE namespace=? "
+                    "AND canon_key=? AND agent_id!=? AND contested=0",
+                    (namespace, key, agent_id)).fetchall()
+                contested = any(d[0] != display for d in others)
+                cur = con.execute(
+                    "INSERT INTO claims (namespace, canon_key, "
+                    "agent_id, display, created_utc, contested) "
+                    "VALUES (?,?,?,?,?,?)",
+                    (namespace, key, agent_id, display, time.time(),
+                     1 if contested else 0))
+                con.commit()
+                return ("contested" if contested else "kept",
+                        cur.lastrowid)
+        finally:
+            con.close()
+
+    def read_claims(self, namespace, agent_id):
+        """Merged view: latest claim per (key, agent); contested=True
+        when agents disagree on a key."""
+        if self._role(namespace, agent_id) not in ("reader",
+                                                   "writer"):
+            raise PermissionError(
+                f"{agent_id} has no access to {namespace}")
+        con = self._connect()
+        try:
+            rows = con.execute(
+                "SELECT canon_key, agent_id, display, contested "
+                "FROM claims WHERE namespace=? ORDER BY rowid",
+                (namespace,)).fetchall()
+        finally:
+            con.close()
+        merged = {}
+        for key, ag, disp, cont in rows:
+            slot = merged.setdefault(key, {})
+            slot[ag] = disp
+        out = {}
+        for key, slot in merged.items():
+            displays = set(slot.values())
+            out[key] = {"claims": dict(slot),
+                        "contested": len(displays) > 1}
+        return out
