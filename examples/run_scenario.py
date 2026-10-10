@@ -38,12 +38,22 @@ def main():
     print("tier keys: %d | wall: %d/%d | probation: %d" % (
         len(tier), len(wall), total, len(prob)))
 
-    # retrieval corpus: the scenario's own turns
-    corpus = []
-    for t in spec["plant_turns"]:
-        corpus.extend([s.strip() for s in
-                       __import__("re").split(r"(?<=[.!?])\s+", t)
-                       if len(s.strip()) >= 15])
+    # retrieval corpus: the scenario's own turns (turn-indexed --
+    # T1 time-aware reads need to know which turn each record
+    # came from). Tags mirror the research harness turn order.
+    import re as _re
+    turns = [("plant-%d" % i, t)
+             for i, t in enumerate(spec["plant_turns"])]
+    turns.append(("mutate", spec["mutate_turn"]))
+    turns.extend(("distract-%d" % i, t)
+                 for i, t in enumerate(spec["distract_turns"]))
+    turn_tags = {tag: i for i, (tag, _) in enumerate(turns)}
+    corpus, turn_of = [], []
+    for ti, (_, t) in enumerate(turns):
+        ss = [s.strip() for s in _re.split(r"(?<=[.!?])\s+", t)
+              if len(s.strip()) >= 15]
+        corpus.extend(ss)
+        turn_of.extend([ti] * len(ss))
     index = LR.build_index(corpus)
 
     # miss probes through retrieval + scorer
@@ -66,6 +76,42 @@ def main():
         results[pid] = v
     from collections import Counter
     print("miss verdicts:", dict(Counter(results.values())))
+
+    # T2: ground the scenario's supersession pairs against the
+    # corpus; T1: run each BADE trial through the stub reader
+    # (context echo -- deterministic; revision needs a real reader,
+    # so the stub verdicts demonstrate the instrument, not belief).
+    links, dropped = LR.build_supersessions("\n".join(corpus),
+                                            SC.supersession_pairs(
+                                                spec))
+    print("supersessions: %d active %s | %d dropped %s" % (
+        len(links), links, len(dropped), dropped))
+    for t in SC.bade_trial_specs(spec):
+        p0 = LR.resolve_turn(t["prior_tag"], turn_tags)
+        p1 = LR.resolve_turn(t["post_tag"], turn_tags)
+        if p0 is None or p1 is None:
+            print("bade %s: INVALID-RUN unresolved tags" % t["trial"])
+            continue
+        ids0, n0 = LR.retrieve_ids(index, corpus, t["question"],
+                                   turn_of=turn_of, max_turn=p0)
+        ctx0 = "\n".join(corpus[i] for i in ids0) if ids0 \
+            else "No relevant records retrieved."
+        ids2, n2 = LR.retrieve_ids(index, corpus, t["question"],
+                                   turn_of=turn_of, max_turn=p1)
+        matched2 = [corpus[i] for i in ids2]
+        base2 = "\n".join(matched2) if matched2 \
+            else "No relevant records retrieved."
+        note = LR.supersession_note(matched2, links)
+        v_plain = LR.bade_verdict(
+            LT.answer_segment(ctx0), LT.answer_segment(base2),
+            t["old"], t["new"])
+        v_note = LR.bade_verdict(
+            LT.answer_segment(ctx0),
+            LT.answer_segment(base2 + ("\n" + note if note else "")),
+            t["old"], t["new"])
+        print("bade %s: plain=%s note=%s (n0=%d n2=%d note=%s)" % (
+            t["trial"], v_plain, v_note, n0 if ids0 else 0,
+            n2 if ids2 else 0, bool(note)))
     print("scorecard: deterministic demo complete (reader stub: "
           "context echo)")
 
