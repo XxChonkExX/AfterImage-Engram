@@ -20,5 +20,6 @@ jobs:
         run: |
           python tests/test_store.py
           python tests/test_rungs.py
+          python tests/test_library.py
       - name: replay test (skips cleanly off-box without frozen artifacts)
         run: python tests/replay_v171b.py

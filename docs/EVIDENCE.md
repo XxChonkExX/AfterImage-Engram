@@ -146,6 +146,12 @@ like f6/f7 sharing plant-3) and follow FREQUENCY, not recency —
 the old mill co-occurs with "rendezvous" in two turns to the new
 value's one. The reader reaches for the most-associated filler,
 not the newest. Spec: grab_rescore_v1.json (42 rows).
+Prior-sampling, cleanest case (v19 side-datum): m05 invents a
+THIRD distinct name for the same absent slot across runs
+(Florence / Mary Anning / Emily) — fabrication samples priors
+per-run, it does not retrieve them. Pair-building corollary:
+absent-slot confabs are UNSTABLE labels; pairs use the DECLINE
+as chosen (stable) with the confab side representative-only.
 
 ### Cross-model disposition (XT3, v2.3-corrected)
 
