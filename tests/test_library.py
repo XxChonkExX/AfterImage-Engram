@@ -185,4 +185,112 @@ v, _ = LS.miss_verdict(
 assert v == "ADJACENT", v
 print("v2.4 topic-subject exclusion: OK")
 
+# --- T1/T2: time-aware retrieval, supersession, BADE (v18 port) ---
+try:
+    sys.path.insert(0, REPO)
+    import engram_harness_v18 as H18
+    HAVE_H18 = True
+except Exception as e:
+    print("harness v18 unavailable (%s); T1/T2 parity skipped" % e)
+    HAVE_H18 = False
+
+TSENTS = [
+    "The expedition leader is named Mira Solano.",
+    "The vault combination is 44-17-89.",
+    "A backup rendezvous is established at the old mill.",
+    "Scouts report the old mill burned down last night.",
+    "The backup rendezvous is moved to the stone bridge.",
+]
+TURNS = [5, 5, 5, 10, 10]
+TIDX = LR.build_index(TSENTS)
+TQ = "Where is the backup rendezvous now?"
+LINKS = [{"old": "old mill", "new": "stone bridge"}]
+
+# unfiltered library read == base retrieve on the same inputs
+ctx, n = LR.retrieve(TIDX, TSENTS, TQ)
+assert "old mill" in ctx and n >= 1, ctx
+ctx_e, n_e = LR.retrieve(TIDX, TSENTS, "zzz qqq xxx")
+assert n_e == 0 and ctx_e.startswith("No relevant records")
+
+# time-aware: prior slice sees old mill only; post slice sees stone
+ids0, _ = LR.retrieve_ids(TIDX, TSENTS, TQ, turn_of=TURNS,
+                          max_turn=5)
+m0 = [TSENTS[i] for i in ids0]
+assert any("old mill" in s for s in m0) and \
+    not any("stone bridge" in s for s in m0), m0
+ids2, _ = LR.retrieve_ids(TIDX, TSENTS, TQ, turn_of=TURNS,
+                          max_turn=10)
+assert any("stone bridge" in TSENTS[i] for i in ids2), ids2
+print("time-aware retrieval: OK")
+
+# supersession grounding + note + BADE verdicts + retention
+act, drop = LR.build_supersessions(
+    "\n".join(TSENTS),
+    LINKS + [{"old": "old mill", "new": "moon base"}])
+assert act == LINKS and drop == [{"old": "old mill",
+                                  "new": "moon base"}], (act, drop)
+note = LR.supersession_note([TSENTS[i] for i in ids2], LINKS)
+assert "superseded" in note and "stone bridge" in note, note
+assert LR.supersession_note([TSENTS[1]], LINKS) == ""
+V = LR.bade_verdict
+assert V("at the old mill", "at the stone bridge",
+         "old mill", "stone bridge") == "PRIOR-OK-REVISED"
+assert V("at the old mill", "at the old mill",
+         "old mill", "stone bridge") == "PRIOR-OK-STUCK"
+assert V("no idea", "somewhere else",
+         "old mill", "stone bridge") == "PRIOR-MISSING-LOST"
+assert LR.retention_count(
+    {"final-f9": {"recalled_new": True},
+     "final-f9-nonote": {"recalled_new": True},
+     "miss/m01": {"verdict": "CONFABULATE"}}) == 1
+assert LR.resolve_turn("plant-5", {"plant-5": 5}) == 5
+assert LR.resolve_turn("nope", {}) is None
+print("supersession/BADE/retention: OK")
+
+# library vs harness v18 on fixed inputs (replay-fidelity rule)
+if HAVE_H18:
+    H18.CORPUS_TURN = list(TURNS)
+    for q in (TQ, "What is the vault combination?",
+              "zzz qqq xxx"):
+        check("retrieve[%s]" % q[:20],
+              LR.retrieve(TIDX, TSENTS, q),
+              H18.retrieve(H18.build_index(TSENTS), TSENTS, q))
+        for mt in (5, 10, 99):
+            check("retrieve_ids[%s|%d]" % (q[:20], mt),
+                  LR.retrieve_ids(TIDX, TSENTS, q, turn_of=TURNS,
+                                  max_turn=mt),
+                  H18.retrieve_ids(H18.build_index(TSENTS), TSENTS,
+                                   q, max_turn=mt))
+    check("grounding", LR.build_supersessions(
+        "\n".join(TSENTS), LINKS), H18.build_supersessions(
+            "\n".join(TSENTS), LINKS))
+    check("note", LR.supersession_note(
+        [TSENTS[i] for i in ids2], LINKS),
+        H18.supersession_note([TSENTS[i] for i in ids2], LINKS))
+    for a, b, o, nw in (
+            ("at the old mill", "at the stone bridge",
+             "old mill", "stone bridge"),
+            ("no idea", "at the old mill", "old mill",
+             "stone bridge")):
+        check("bade_verdict", LR.bade_verdict(a, b, o, nw),
+              H18.bade_verdict(a, b, o, nw))
+
+# scenario T1/T2 channel: both shipped specs carry grounded pairs
+for name, old, new, prior in (
+        ("fiction-v1.json", "old mill", "stone bridge", "plant-5"),
+        ("causeway-v1.json", "dried well", "watchtower", "plant-3")):
+    spec = SC.load_scenario(os.path.join(
+        os.path.dirname(__file__), "..", "examples", name))
+    pairs = SC.supersession_pairs(spec)
+    assert pairs == [{"old": old, "new": new}], (name, pairs)
+    trials = SC.bade_trial_specs(spec)
+    assert len(trials) == 1 and trials[0]["prior_tag"] == prior \
+        and trials[0]["post_tag"] == "mutate", (name, trials)
+    # malformed entries drop, never break the load
+    bad = dict(spec, supersessions=[{"bogus": 1}, {"old": "x"}],
+               bade_trials=[{"trial": "bad"}])
+    assert SC.supersession_pairs(bad) == []
+    assert SC.bade_trial_specs(bad) == []
+    print("scenario T1/T2 %s: OK" % name)
+
 print("test_library: DONE")

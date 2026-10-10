@@ -141,5 +141,21 @@
  ],
  "unkeyed_facts": [
   "f9"
+ ],
+ "supersessions": [
+  {
+   "old": "dried well",
+   "new": "watchtower"
+  }
+ ],
+ "bade_trials": [
+  {
+   "trial": "bade-f9",
+   "question": "Where is the fallback meeting point now? Answer with the current location only, as a short phrase.",
+   "old": "dried well",
+   "new": "watchtower",
+   "prior_tag": "plant-3",
+   "post_tag": "mutate"
+  }
  ]
 }

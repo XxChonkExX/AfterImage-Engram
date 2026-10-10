@@ -17,6 +17,8 @@ OPTIONAL_DEFAULTS = {
     "planted_names": [],
     "miss_rows": [],
     "cycle_probes": {},
+    "supersessions": [],
+    "bade_trials": [],
 }
 
 
@@ -56,3 +58,22 @@ def miss_rows(spec):
 def key_patterns(spec):
     return {row["pid"]: row["keys"] for row in spec.get("miss_rows", [])
             if row.get("keys")}
+
+
+BADE_KEYS = {"trial", "question", "old", "new", "prior_tag",
+             "post_tag"}
+
+
+def supersession_pairs(spec):
+    """T2 channel: scenario-declared (old, new) pairs, shape-checked.
+    Malformed entries drop -- a bad pair fails at load, never at
+    probe time."""
+    return [{"old": p["old"], "new": p["new"]}
+            for p in spec.get("supersessions", [])
+            if isinstance(p, dict) and p.get("old") and p.get("new")]
+
+
+def bade_trial_specs(spec):
+    """T1 channel: two-pass revision trial specs, shape-checked."""
+    return [dict(t) for t in spec.get("bade_trials", [])
+            if isinstance(t, dict) and BADE_KEYS <= set(t)]

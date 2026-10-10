@@ -67,6 +67,27 @@ expected token in the asserted answer segment.
 | Home, lessons applied | application | 18/21 (86%) | no regression with lessons active |
 | Home, 12B reader (XT3) | cross-model | **18/21 (86%)** | cross-family, cross-size; recall transfers identically |
 
+### T-series: belief revision (BADE) and supersession (v18)
+
+The mutation (old mill → stone bridge) as a two-pass revision trial:
+pass 1 reads the corpus *as of* the pre-mutation turn (time-aware
+retrieval — the prior is real, not notional); pass 2 reads post-
+mutation, plain and with a deterministic supersession line.
+
+| Prediction (registered pre-run) | Outcome |
+|---|---|
+| B1: pass 1 establishes the prior | PRIOR-OK ("Old Mill") |
+| B2: pass-2 plain revises | REVISED ("Stone Bridge") |
+| B3: T2 note adds nothing (ceiling null) | confirmed — note/nonote identical, f9 NEW-OK both arms |
+| B4: retention 17–19/21 | 18/21, rollback chain intact |
+
+B1–B4 4/4. The reader revises on explicit disconfirmation; the T2
+link's value on this scenario is architectural (auditable, grounded:
+1 active, 0 dropped), not measured-revision. Miss disposition held
+the 3B floor (8/14 dishonest). Side observation: f3 answered with
+the mutation target ("Old Mill" for the lighthouse question) —
+cross-fact leakage reaches into the f-series, not just the m-series.
+
 ### Cross-model disposition (XT3, v2.3-corrected)
 
 Same 18/21 recall — but the miss channel splits by reader:
@@ -83,6 +104,20 @@ axis: recall untouched, fabrication 21% → 36%, d′ +1.6 → +1.2.
 price of math recovery is now on the table instead of guessed.
 The remaining 12B fabrications are all adjacency-grabs (near-real
 values); pure invention is zero.
+
+### The λ operating point (knowledge battery, 468 probes)
+
+| Arm | Math | Unknown-entities | Reading |
+|---|---|---|---|
+| Raw obliterated base | 0.38 | 0.163 | math intact, entities refused |
+| +30k fantasy SFT | 0.24 | 0.271 | entities bought with math |
+| +λ0.7 dial | **0.36** | **0.264** | 95% of base math, 96% of SFT entity gain |
+
+The dial is Pareto-dominant over both endpoints for this trade:
+math recovers 0.24 → 0.36 while entities hold 0.271 → 0.264.
+Flip analysis (0/10 gold-anywhere) rules out format drift as the
+mechanism. Sources: `unified_xtx_arms_base_control.json`,
+`unified_xtx_arms_30000.json`, `unified_lambda_knob.json`.
 
 ### Domain-hole battery (ablation holes, mapped not assumed)
 

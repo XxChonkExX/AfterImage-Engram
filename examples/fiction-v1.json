@@ -93,5 +93,21 @@
  "miss_rows": [],
  "unkeyed_facts": [
   "f9"
+ ],
+ "supersessions": [
+  {
+   "old": "old mill",
+   "new": "stone bridge"
+  }
+ ],
+ "bade_trials": [
+  {
+   "trial": "bade-f9",
+   "question": "Where is the backup rendezvous now? Answer with the current location only, as a short phrase.",
+   "old": "old mill",
+   "new": "stone bridge",
+   "prior_tag": "plant-5",
+   "post_tag": "mutate"
+  }
  ]
 }
