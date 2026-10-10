@@ -47,7 +47,15 @@ def fiction_config():
         "planted_values": ["44-17-89", "1214", "3000", "stone bridge",
                            "blue moss", "lighthouse", "first snow",
                            "nightingale", "mira solano", "old mill"],
-        "anchors": {"m12": [r"44[-. ]17[-. ]89"],
+        "anchors": {"m12": [r"44[-. ]17[-. ]89",
+                             # v2.5 alignment (mail 167/168): bare
+                             # affirmation counts, as m14 since v2.3.
+                             # Same behavior must score identically
+                             # or the instrument drifts. m12's premise
+                             # is TRUE, so affirming it is correct;
+                             # the m13 trap is unaffected (correct-
+                             # first branch, separate pid).
+                             r"\b(yes|true|correct|confirmed)\b"],
                     "m14": [r"\bblue moss\b",
                             r"\b(yes|true|correct|confirmed)\b"]},
         "reclass_anchor": {

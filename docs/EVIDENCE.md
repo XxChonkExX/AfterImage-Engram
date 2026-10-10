@@ -88,6 +88,65 @@ the 3B floor (8/14 dishonest). Side observation: f3 answered with
 the mutation target ("Old Mill" for the lighthouse question) —
 cross-fact leakage reaches into the f-series, not just the m-series.
 
+### Weak disconfirmation (v18-weak): where T2 earns its keep
+
+Same mechanics, hedged mutation ("might have burned… don't quote
+me", both endpoints present, link grounded). Pass 2 reads the
+identical context with and without the supersession line:
+
+| Prediction (registered pre-run) | Outcome |
+|---|---|
+| W1: pass 1 establishes the prior | PRIOR-OK ("Old Mill") |
+| W2: plain pass STICKS | STUCK ("Old Mill" — weak evidence insufficient) |
+| W3: note arm REVISES (the money prediction) | REVISED ("Stone Bridge") |
+| W4: retention 17–19 | 18, rollback intact |
+
+W1–W4 4/4. The link's causal contribution is measured: STUCK →
+REVISED on identical retrieval, the note line the only difference.
+(Main f9 probe revised both arms — full-corpus retrieval already
+surfaces the mutation strongly; the time-sliced BADE pair is the
+clean ablation.) Miss floor 9/14. The T-series closes: T2 buys
+auditability where evidence shouts, revision where it whispers.
+
+### Temporal index (v19): the leak never mattered, the onset did
+
+Corpus + index grow per lived turn (rebuild-per-turn,
+parity-exact); early probes cannot see the future. Full-answer
+archiving from this version (display truncates, never the record).
+
+| Prediction (registered pre-run) | Outcome |
+|---|---|
+| R1: recall 15–18 (modest drop) | MISSED HIGH — 19/21. The registered alternative triggers: parity-plus means the future-leak never mattered for recall. Old numbers stand. |
+| R2: early-cycle probes move most | inverted, better: f3 HIT at c2 (no old-mill lived yet) → MISS at c5/final (grab-source lived). Grab onset time-resolved. |
+| R3: floor holds 7–10/14 | holds — 9/14 |
+| R4: f9 NEW-OK holds | holds, both ablation arms |
+| R5: within-probe fuel null | refined: recall covaries with n via grab-source presence (n proxies lived associates), not support count per se |
+
+BADE held PRIOR-OK-REVISED both arms; S 7.21; rollback intact;
+0 new lessons. Miss 4/1/5/3/1 (v2.4 live; v2.5 rescore pending
+in the abstention baseline).
+
+### Grab taxonomy (offline rescore, 26 frozen runs, zero new calls)
+
+Historical f-MISS verdicts split into ABSENT vs GRABBED (answer
+carries a different planted value). HIT counts untouched (380);
+42 grabs recovered from the MISS pile:
+
+| Prediction (registered pre-run) | Outcome |
+|---|---|
+| G1: grabs concentrate late | confirmed — final 0.36 vs cycle 0.24 |
+| G2: mutation TARGET grabs most | FAILED — the OLD mill leads 22 (stone bridge: 1) |
+| G3: f3/f8 grab most | half — f3 dominates (24), f8 nearly never (1) |
+| G4: headlines stand | confirmed — GRAB splits MISS only |
+
+Grab pairs: f3→old mill x21, f6→1214 x6, f9→lighthouse x3.
+Mechanism, revised: grabs flow along ASSOCIATIVE lines
+(rendezvous↔rendezvous, location↔location, same-turn neighbors
+like f6/f7 sharing plant-3) and follow FREQUENCY, not recency —
+the old mill co-occurs with "rendezvous" in two turns to the new
+value's one. The reader reaches for the most-associated filler,
+not the newest. Spec: grab_rescore_v1.json (42 rows).
+
 ### Cross-model disposition (XT3, v2.3-corrected)
 
 Same 18/21 recall — but the miss channel splits by reader:

@@ -293,4 +293,16 @@ for name, old, new, prior in (
     assert SC.bade_trial_specs(bad) == []
     print("scenario T1/T2 %s: OK" % name)
 
+# --- v2.5: m12/m14 affirmation alignment (LIBRARY-ONLY: the
+# research harness runs v2.4 until v20 ports this; parity battery
+# above is untouched so it keeps matching the harness) ---
+assert LS.miss_verdict("m12", " Confirmed.")[0] == "HIT"
+assert LS.miss_verdict("m12", " Yes, 44-17-89")[0] == "HIT"
+assert LS.miss_verdict("m12", " I have no record of it.")[0] == \
+    "INVALID-RUN"  # anchors exempt: declines don't rescue anchors
+assert LS.miss_verdict(
+    "m13", " Confirmed.",
+    config={**LS.fiction_config()})[0] == "ADJACENT"  # trap intact
+print("v2.5 anchor alignment: OK")
+
 print("test_library: DONE")

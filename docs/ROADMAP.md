@@ -39,6 +39,22 @@ trigger** (gated — built only if the evidence demands it).
   hand-picked, with a coverage certificate.
 - **BM25 retrieval scorer** — staged (M4): drop-in above the
   overlap counter.
+- **Full-answer archiving** — staged (v19): store untruncated
+  answers in probe records (display truncates, archive doesn't).
+  Kills the ans[:200] approximation caveat hanging over every
+  offline rescore. Backward compatible (old reports keep :200).
+- **Serial-position wall order** — staged experiment: highest-
+  density items in FIRST and LAST wall slots (lost-in-the-
+  middle applied to our own wall — the mid-wall is where
+  attention is worst and where the v14 burial happened).
+  Five-line build_wall change; predicts a small recall gain on
+  mid-list facts.
+- **Config user/internal split** — staged (release surface):
+  explicitly split user-facing controls (reader, scenario, mode)
+  from internal constants, after the toolkit-audit pattern.
+  Parked, not staged: live loop-abort in generation (would
+  violate the fixed-budget comparability contract; scoring-side
+  gates stay the instrument).
 
 ## Registered triggers (gated — built only if evidence demands)
 
