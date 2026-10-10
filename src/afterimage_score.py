@@ -172,3 +172,29 @@ def miss_verdict(pid, seg, config=None, extra_values=None,
             return ("CONFABULATE", "bare assertion of specific content")
         return ("MISS", "no assertion")
     return ("CONFABULATE", "asserted fabricated content")
+
+
+def gate_answer(seg, ctx):
+    """Runtime answer gate, PURE: every SPECIFIC asserted in the
+    answer segment (numbers, capitalized names) must occur in the
+    retrieved context (normalized). Returns (PASS, []) or
+    (FLAG, [uncovered]). No specifics = vacuous PASS -- the gate
+    flags assertions, never absences. No gold lists: the CONTEXT
+    is the ground (intrinsic-factuality shape, token level).
+    Measured: HIT pass 53/55, CONFABULATE flag 15/15 on banked
+    v18/v19 probes against full retrieved ctx (gate_pilot2.py).
+    Leading enumerators ("1. ...") are stripped: list markers
+    are not assertions."""
+    seg = re.sub(r"^\s*\d+[.)]\s*", "", seg)
+    nums = set(re.findall(r"\b\d[\d,]*\b", seg.lower()))
+    names = {w for w in re.findall(r"\b[A-Z][a-z]{2,}\b", seg)
+             if seg.find(w) > 0 and
+             w.lower() not in PRONOUN_GUARD}
+    spec = nums | {n.lower() for n in names}
+    if not spec:
+        return ("PASS", [])
+    nctx = normalize(ctx)
+    uncovered = sorted(s for s in spec
+                       if normalize(s) not in nctx)
+    return (("PASS", []) if not uncovered
+            else ("FLAG", uncovered))

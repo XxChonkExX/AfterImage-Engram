@@ -305,4 +305,25 @@ assert LS.miss_verdict(
     config={**LS.fiction_config()})[0] == "ADJACENT"  # trap intact
 print("v2.5 anchor alignment: OK")
 
+# --- answer gate: asserted specifics must live in ctx ---
+assert LS.gate_answer("Mira Solano",
+                      "The leader is named Mira Solano.") == \
+    ("PASS", [])
+assert LS.gate_answer("44-17-89",
+                      "The vault opens with 44-17-89.") == \
+    ("PASS", [])
+assert LS.gate_answer("1. Blue moss",
+                      "The antidote requires blue moss.") == \
+    ("PASS", [])  # enumerator stripped, not asserted
+assert LS.gate_answer("I have no record of that.",
+                      "No relevant records retrieved.") == \
+    ("PASS", [])  # absences vacuous: nothing to verify
+g, unc = LS.gate_answer("Nightingale's real name is Florence.",
+                        "The spy's codename is Nightingale.")
+assert g == "FLAG" and unc == ["florence"], (g, unc)
+g, unc = LS.gate_answer("The rendezvous is at the Old Mill.",
+                        "The rendezvous is at the lighthouse.")
+assert g == "FLAG" and set(unc) == {"old", "mill"}, (g, unc)
+print("answer gate: OK")
+
 print("test_library: DONE")

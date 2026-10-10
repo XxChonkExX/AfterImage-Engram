@@ -153,6 +153,23 @@ per-run, it does not retrieve them. Pair-building corollary:
 absent-slot confabs are UNSTABLE labels; pairs use the DECLINE
 as chosen (stable) with the confab side representative-only.
 
+### Runtime answer gate (lie detection as a rung)
+
+The taxonomy ports to serving time without gold lists: every
+SPECIFIC asserted in the answer segment (numbers, capitalized
+names) must occur in the retrieved context (normalized). No
+specifics = vacuous PASS (assertions flagged, absences never).
+Measured on banked v18/v19 probes against full retrieved ctx:
+HIT pass **53/55 (0.964)**, CONFABULATE flag **15/15 (1.000)**.
+(Against truncated ctx the same gate collapses to 0.164 --
+context fidelity is load-bearing, stated.) Residual: enumerated
+answers ("1. Blue moss") handled by stripping list markers.
+Limits, stated: closed-world only (power = store coverage);
+adversarial paraphrase past normalization escapes it; revision
+loop (re-prompt on FLAG) staged -- BADE measured the reader's
+revision propensity (B2/W3), the loop itself unbuilt.
+`gate_answer()` in the library, tested.
+
 ### Cross-model disposition (XT3, v2.3-corrected)
 
 Same 18/21 recall — but the miss channel splits by reader:
