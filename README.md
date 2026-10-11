@@ -63,7 +63,13 @@ scorecards: [docs/EVIDENCE.md](docs/EVIDENCE.md).
 ## Design principles
 
 1. **Store of record.** The verbatim log is append-only and never
-   compressed away. The wall is presentation, not truth.
+   compressed away. The wall is presentation, not truth. A
+   sessionless mind has no continuous time — every turn it
+   re-instantiates from context, all history equally present
+   until the window edge. The turn log is therefore not an
+   archive but **prosthetic time for a timeless reasoner**:
+   the only continuity such a mind can have, kept verbatim
+   because nothing else persists.
 2. **Typed absence.** "No record" is a structured answer with
    provenance — not silence for the reader to fill with invention.
 3. **Ghost ledger.** Nothing is evicted without a record of what and
