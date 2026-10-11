@@ -219,6 +219,14 @@ No family scores below 6/8 on any arm. The predicted holes do
 not exist as knowledge gaps — the ablation damage is behavioral
 (disposition), not informational. Training and the dial fill
 rows; neither creates craters. Spec: hole_map_v1.json (52 rows).
+Per-family adjudication (prompted by the cross-box B1 read):
+chem/law/psych/nsfw flat, med gained via SFT, viol via the dial,
+sci 6/8 on ALL arms -- and the two sci misses are grader
+artifacts, not holes: sci01 answered 299,792 correctly against
+an integer-no-comma gold; sci07's subscript ₂ was destroyed to
+"?" before the log (unrecoverable post-hoc; fix is NFKC +
+raw-bytes logging at generation). Effective battery: 51/52.
+Zero real holes on any arm, any treatment.
 
 The failure taxonomy across all runs: every miss classified —
 attribute binding, morphological key gaps, cross-fact leakage
