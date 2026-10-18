@@ -5,6 +5,28 @@ they exist - this log records what the instruments said, including
 the negative results.
 
 ## [Unreleased]
+- afterimage_decline module (vendored, stamped): validated decline
+  detection from the crucible refusal/abstention program, ported
+  after measuring the gap on 6,113 real reader outputs -- 8/21
+  DEFAULT_DECLINE_MARKERS dead, and the vocabulary misses 67% of
+  canonical declines (the missed class is grounding-based: "I
+  cannot see", "I can't tell you what you dreamed"). ADDITIVE only:
+  miss_verdict's scoring order and DEFAULT_DECLINE_MARKERS are
+  unchanged; the module ships classify_decline (negation-aware,
+  structural hedged/hard decision -- no length proxy), the
+  reachability protocol that found the dead markers, and check-G
+  probe sanity. Swap into scoring requires a parity test first.
+  Reachability example: examples/reachability_reader_corpus.py
+  (measured on a two-reader 758-row sample: 14/21 default markers
+  dead; the single strongest canonical rule is the grounding form
+  the default list lacks entirely)
+- P-0 index paraphrase-flip test (tests/test_paraphrase_flip.py):
+  the memory-side denominator for the P-series. Stem-preserving
+  paraphrase cannot flip the index; stem-replacing paraphrase must.
+  Fixed-input bounds so P-series reader absences subtract index
+  misses instead of guessing. First paraphrase attempt leaked the
+  stem "tower" through the unrelated tower/moss record -- the
+  near-miss the test exists to catch in probe design
 - T2 supersession links (v18 port): scenario-declared (old, new)
   pairs, corpus-grounded (ungrounded drop on the record),
   deterministic context line at probe time; measured null on

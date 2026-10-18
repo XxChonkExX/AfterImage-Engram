@@ -61,6 +61,57 @@ lexical baseline is exhausted), it must:
 The trigger was registered *before* the component exists, and the
 first cross-domain evaluation determines whether it fires at all.
 
+### Stamp additions (2026-10-17, measured)
+
+Two further stamps are required the day a learned scorer lands,
+because two measured results show the contract is incomplete
+without them:
+
+- **Extraction token-position.** The turn-boundary finding
+  (crucible program, Qwen2.5-3B, 36 layers): prompt-conditioned
+  signal is EXACTLY ZERO across the entire chat template and onset
+  at the first token of user content, at the same position in
+  every layer. Position is a template artifact — "position 24"
+  means nothing on another architecture or template. Any artifact
+  or score tied to a position must stamp the template that
+  produced it.
+- **Label-source.** The decline labels that supervise or validate
+  a component are themselves an instrument. Re-labelling the same
+  129-reader-output archive under a corrected classifier moved
+  abstained counts from 12 to 60 (5x). A component fitted to v1
+  labels is not the same component under v2 labels; the stamp
+  must say which.
+
+Method-over-artifact applies: ship the computation, never ship a
+number dressed as a result. A borrowed direction/vector from a
+different architecture is a dimension mismatch at a different
+depth and tests nothing.
+
+## The vendored-taxonomy contract (afterimage_decline)
+
+Decline detection is no longer maintained as a per-domain
+hand-written vocabulary. `src/afterimage_decline.py` vendors the
+validated classifier from the crucible refusal/abstention program
+(pure stdlib, stamped with source, date, and measured numbers).
+
+Measured rationale (6,113 real reader outputs, 2026-10-17): 8/21
+DEFAULT_DECLINE_MARKERS dead; the default vocabulary catches 257
+of 782 canonical declines (67% missed), the missed class being
+grounding-based decline ("I cannot see", "I can't tell you what
+you dreamed") -- the dominant decline form in small readers. In
+scoring terms those declines survive only through the default-MISS
+fallthrough, and mislabel as CONFABULATE exactly when the declined
+answer echoes topic content, because bare-assertion fires.
+
+Contract: the master lives in the crucible kit and is gated by its
+validation harness; this repo holds the stamped vendored copy and
+its tests. DEFAULT_DECLINE_MARKERS remain the scoring vocabulary
+until a parity test proves a swap safe (swap = behavior change =
+changelog + parity evidence). Per-domain decline additions stay
+possible through the config dict -- now justified by a
+reachability run (examples/reachability_reader_corpus.py) rather
+than by intuition.
+
 ## The scenario-as-data interface
 
 Scenarios are JSON, not code:

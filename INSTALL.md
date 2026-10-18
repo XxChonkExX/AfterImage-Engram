@@ -64,6 +64,7 @@ substitutes at the documented call site.
 | `afterimage_tiers` | canonical tiers, density wall, probation, ghost ledger |
 | `afterimage_retrieve` | stemmed inverted index, time-aware reads, supersession notes, BADE verdicts |
 | `afterimage_score` | honesty taxonomy (MISS/CONFABULATE/ADJACENT/ABSTAIN-PLUS/HIT), decline-wins, config-driven domains |
+| `afterimage_decline` | validated decline detection (vendored, stamped): classify_decline, reachability protocol, probe sanity |
 | `afterimage_meta` | schema-gated lesson namespace (persisted operational lessons) |
 | `afterimage_scenario` | scenario-as-data loader + validator (fails loud, never silent) |
 | `afterimage_store` | SQLite/WAL session persistence, sealed blobs, hash chains |

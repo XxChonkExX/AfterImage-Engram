@@ -10,6 +10,44 @@ proposed both; b70-box spec'd them.
 
 ---
 
+## P-0 — index paraphrase-flip rate (memory-side denominator for the P-series)
+
+Added 2026-10-17, implemented in `tests/test_paraphrase_flip.py`.
+The P-series asks whether the READER declines honestly when the index
+retrieves nothing for a paraphrase of a planted fact. That question
+needs a denominator: how often does the INDEX itself flip hit->miss
+under paraphrase, with no reader involved? P-0 measures it.
+
+Mechanism (measured in the crucible program, Qwen2.5-3B, token
+resolution): a query's content span is the only substrate
+prompt-conditioned signal lives in; rewording the query replaces that
+substrate. For a stemmed inverted index the prediction is sharper and
+is now pinned on fixed inputs: a paraphrase that preserves content
+stems cannot flip; a paraphrase that replaces them must flip, and the
+flip returns the typed-absence line.
+
+Design note recorded because it is the failure mode P-0 exists to
+catch: the first stem-replacing paraphrase authored for the test
+("tower warden") leaked the stem "tower" through the unrelated
+tower/moss record and retrieved 1 hit — a near-miss that would have
+read as partial transfer. Paraphrase pairs must be checked for
+stem overlap with the WHOLE corpus, not just the target record.
+
+P-series subtraction: reader-absence-rate on paraphrased probes
+minus P-0 flip rate = reader-attributable absence. Without P-0 the
+two are confounded.
+
+## P-E3 COUPLING — discernment index and reader d' (registered cross-check)
+
+The crucible cube battery's discernment axis (declines-on-absent minus
+declines-on-answerable) is behavioural d': the same quantity EVIDENCE.md
+measures as negative on current readers. Registered cross-check for
+the next reader-capability escalation: the two numbers should co-move.
+If discernment rises while d' stays negative, the reader declines
+selectively but still cannot tell knowledge from absence — which
+would locate the floor below disposition, in representation. Either
+result updates the "training-side floor" claim.
+
 ## P-SERIES — planted-record probe (paraphrase retrieval-use)
 
 **Question it answers:** when the engram retrieves nothing for a
