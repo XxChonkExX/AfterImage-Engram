@@ -5,6 +5,22 @@ they exist - this log records what the instruments said, including
 the negative results.
 
 ## [Unreleased]
+- afterimage_engine_v2 (retrieval upgrade candidate, pure/deterministic,
+  no embeddings/GPU): BM25 scoring (replaces raw hit-count), a
+  phrase/proximity channel, a char-4gram channel, Reciprocal Rank Fusion
+  (weights 1.0/.5/.3), RPG synonym query expansion, and structure-aware
+  chunking (markdown blocks/stat-blocks/tables kept atomic). MEASURED on
+  the rpg_store engram (13,157 records -> 33,762 units, known-item R@5,
+  N=500):
+    - short 3-term queries:   baseline 0.432 | bm25 0.484 | rrf 0.490
+    - natural heading queries: baseline 0.484 | bm25 0.438 | rrf 0.518
+  FINDING: BM25 alone is volatile (best on short queries, WORSE than
+  baseline on natural ones); RRF fusion is best-or-tied on BOTH query
+  types and is the recommended default. ADDITIVE: ships as a separate
+  module behind the typed-absence read contract; the frozen-store
+  lens-experiment discipline is preserved (search returns the absence
+  line when nothing clears theta). tests/test_engine_v2.py; harness in
+  examples/eval_retrieval_v2.py.
 - afterimage_decline module (vendored, stamped): validated decline
   detection from the crucible refusal/abstention program, ported
   after measuring the gap on 6,113 real reader outputs -- 8/21
