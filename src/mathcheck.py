@@ -15,6 +15,8 @@ import ti85
 
 # normalize LaTeX/typographic math into plain arithmetic
 _REPLACEMENTS = [
+    (r"\\text\{([^{}]*)\}", r"\1"),
+    (r"\\mathrm\{([^{}]*)\}", r"\1"),
     (r"\\cdot", "*"), (r"\\times", "*"), (r"\\div", "/"),
     (r"\\frac\{([^{}]+)\}\{([^{}]+)\}", r"((\1)/(\2))"),
     (r"\\d?frac\{([^{}]+)\}\{([^{}]+)\}", r"((\1)/(\2))"),
@@ -22,6 +24,12 @@ _REPLACEMENTS = [
     (r"\\binom\{([^{}]+)\}\{([^{}]+)\}", r"ncr(\1, \2)"),
     (r"\\pmod\{([^{}]+)\}", r"%(\1)"),
     (r"\\%", "%"), (r'\\"', '"'),
+    (r"\*\*([^\s*][^*]*?)\*\*", r"\1"),  # markdown bold around values
+    # unit words adjacent to numbers break expression parsing
+    (r"(?<=\d)\s*(?:mph|kmh|kph|km/h|miles|mile|hours?|hrs?|minutes?|"
+     r"mins?|seconds?|secs?|meters?|metres?|kilometers?|kilometres?|"
+     r"feet|foot|ft|inches|inch|cm|mm|km|kg|lbs|pounds?|dollars?|usd|"
+     r"degrees?|°)\b", ""),
     (r"\\left", ""), (r"\\right", ""), (r"\\,", " "), (r"\\;", " "),
     (r"\\!", ""), (r"~", " "),
 ]
@@ -50,23 +58,30 @@ def _iter_equalities(text):
     for line in t.splitlines():
         if "=" not in line:
             continue
-        for m in re.finditer(
-                r"([0-9a-zA-Z\.\s\(\)\+\-\*/\^%,\!]{3,80}?)\s*=\s*"
-                r"(-?\d[\d\,]*(?:\.\d+)?)", line):
-            expr = m.group(1).strip(" \t\n+,")
-            # strip leading prose words (keep function names like ncr/sqrt)
-            expr = re.sub(r"^(?:(?:and|so|thus|the|we|compute|first|"
-                          r"therefore|then|hence|now|it|is|a|an|calculate|"
-                          r"gives?|getting)\s+)+", "", expr, flags=re.I)
-            # drop pure sign-prefix / bare-number junk
-            if not re.search(r"[\+\-\*/\^%!]|sqrt|ncr|npr|fact|log|ln|sin|"
-                             r"cos|tan|hypot|mean|gcd", expr):
+        # one equality per sentence segment; multi-equality lines would
+        # otherwise pair across statements
+        for seg in re.split(r"(?:\.\s+|;\s+|\.\n)", line):
+            if "=" not in seg:
                 continue
-            if not any(ch.isdigit() for ch in expr):
-                continue
-            if len(expr) < 3:
-                continue
-            yield expr, m.group(2).replace(",", "")
+            for m in re.finditer(
+                    r"([0-9a-zA-Z\.\s\(\)\+\-\*/\^%,\!]{3,80}?)\s*=\s*"
+                    r"(-?\d[\d\,]*(?:\.\d+)?)", seg):
+                expr = m.group(1).strip(" \t\n+,")
+                # strip leading prose (keep function names like ncr/sqrt)
+                expr = re.sub(r"^(?:(?:and|so|thus|the|we|compute|first|"
+                              r"therefore|then|hence|now|it|is|a|an|"
+                              r"calculate|gives?|getting)\s+)+", "",
+                              expr, flags=re.I)
+                expr = expr.lstrip("* ").strip()  # markdown bold residue
+                # drop pure sign-prefix / bare-number junk
+                if not re.search(r"[\+\-\*/\^%!]|sqrt|ncr|npr|fact|log|ln|"
+                                 r"sin|cos|tan|hypot|mean|gcd", expr):
+                    continue
+                if not any(ch.isdigit() for ch in expr):
+                    continue
+                if len(expr) < 3:
+                    continue
+                yield expr, m.group(2).replace(",", "")
 
 
 def sweep(text):
