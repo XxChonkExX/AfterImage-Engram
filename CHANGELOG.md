@@ -93,3 +93,8 @@ the negative results.
 - engine v2 `search()`: added `min_score` - absolute BM25 floor for
   the typed-absence contract (theta was accepted but unused).
 - tests: `tests/test_ti85_mathcheck.py` (6 tests, all passing).
+
+- `src/rv32.py`: deterministic RV32I emulator (safe execution sandbox).
+  40-instruction base ISA, labels, 20k-step cap, 4KB memory, no
+  syscalls - runs model-emitted assembly with host access impossible
+  by construction. 5-case selftest (loops, branches, memory, bitwise).
