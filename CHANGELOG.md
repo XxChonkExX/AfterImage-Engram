@@ -98,3 +98,8 @@ the negative results.
   40-instruction base ISA, labels, 20k-step cap, 4KB memory, no
   syscalls - runs model-emitted assembly with host access impossible
   by construction. 5-case selftest (loops, branches, memory, bitwise).
+
+- `examples/afterimage_router.py`: the standard side-tool wiring - one
+  config-driven router (engram injection + TI-85 sweep + abacus-ledger
+  repair + rv32 sandbox) for any OpenAI-compatible upstream. Verify-only
+  mode when no records are given. README section added.

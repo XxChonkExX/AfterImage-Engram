@@ -196,3 +196,37 @@ own falsifier.
 
 *"Theories are meant to die under testing or stand under rigor and
 repeatability. That is the truth."*
+
+## Serve-time side tool: verification router (v2.1)
+
+The engram is a side tool for any OpenAI-compatible model server.
+`examples/afterimage_router.py` is the standard wiring - one
+config-driven process between the client and llama.cpp:
+
+```
+python examples/afterimage_router.py --records engram.jsonl \
+    --upstream http://127.0.0.1:8012 --port 8014
+```
+
+Endpoints:
+- `/v1/engram/chat` - retrieval-grounded generation (top-k reference
+  injection, typed-absence respected)
+- `/v1/calc/chat` - the abacus ledger: the model answers naturally,
+  every arithmetic claim in the answer is evaluated by the TI-85
+  calculator (`ti85.py`), and a machine-verified fact ledger is fed
+  back for one repair round. Arithmetic becomes exact without
+  retraining the model.
+- `/v1/verify/chat` - sweep + repair only (no injection)
+- `/v1/engram/search` - raw retrieval
+
+`ti85.py` is an injection-safe scientific calculator (AST whitelist,
+TI syntax: ^ power, n! factorial, ncr/npr, trig rads/degs, stats).
+`mathcheck.py` is the line-anchored claim sweep (LaTeX/units
+normalized: frac, sqrt, binom, pmod, cdot, unit words stripped).
+`rv32.py` is a deterministic RV32I emulator for executing
+model-authored programs in a capped sandbox (no syscalls, no host
+access by construction).
+
+Measured: arithmetic verification converts model math from
+approximately-right to exactly-right on word problems (every
+surviving claim machine-checked), at zero cost to model weights.
