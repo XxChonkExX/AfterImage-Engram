@@ -78,3 +78,18 @@ the negative results.
 - Measured: 18/21 recall home ground, 16–19/21 transfer runs,
   fabrication floor 73–90% (3B) / 21% (12B), discriminability
   d' negative (3B) → positive (12B)
+
+## v2.1 - calculator + arithmetic sweep (2026-10-28)
+
+- `src/ti85.py`: TI-85-class scientific calculator. AST-whitelist
+  evaluator (no attribute access, no dynamic names, no keywords),
+  TI syntax (^ power, n! postfix), trig rads/degs, logs, roots,
+  factorial, ncr/npr, hypot, stats. Injection-safe by construction;
+  14-case selftest.
+- `src/mathcheck.py`: line-anchored sweep of model output for
+  <expr> = <value> claims; LaTeX-normalized (frac, sqrt, binom,
+  pmod, cdot/times/div); each claim evaluated with ti85 and compared.
+  Designed as a serve-time correctness check with one repair round.
+- engine v2 `search()`: added `min_score` - absolute BM25 floor for
+  the typed-absence contract (theta was accepted but unused).
+- tests: `tests/test_ti85_mathcheck.py` (6 tests, all passing).

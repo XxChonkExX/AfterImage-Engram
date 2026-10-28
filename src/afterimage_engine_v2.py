@@ -166,9 +166,16 @@ class Retriever:
                 self.src.append(ri)
         self.idx = Index(self.units)
 
-    def search(self, query, k=5, theta=1):
+    def search(self, query, k=5, theta=1, min_score=None):
         """Returns the typed-absence line when nothing clears theta
-        (the Afterimage read contract), else the top-k units."""
+        (the Afterimage read contract), else the top-k units.
+
+        min_score: optional floor on the top unit's BM25 score. RRF
+        ranks are scale-free, so the absolute-relevance gate runs on
+        the BM25 channel; queries whose best unit scores under the
+        floor get the typed-absence line instead of polluting the
+        prompt with unrelated material.
+        """
         qt = terms(query)
         if not qt:
             return "No relevant records retrieved.", 0
@@ -178,5 +185,10 @@ class Retriever:
         fused = rrf([_ranks(bm), _ranks(ph), _ranks(ng)])
         if not fused:
             return "No relevant records retrieved.", 0
+        if min_score is not None:
+            best = max(bm.get(i, 0.0) for i, _ in fused.most_common(k))
+            if best < min_score:
+                return "No relevant records retrieved.", 0
         top = [i for i, _ in fused.most_common(k)]
         return "\n".join(self.units[i] for i in top), len(fused)
+
