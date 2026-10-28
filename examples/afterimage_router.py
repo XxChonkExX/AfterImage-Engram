@@ -33,6 +33,7 @@ from flask import Flask, request, jsonify
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
+sys.path.insert(0, r"C:\Users\mikeh\Documents\New OpenCode Project\AfterImage-Engram\src")
 from afterimage_engine_v2 import Retriever  # noqa: E402
 import mathcheck  # noqa: E402
 import ti85  # noqa: E402
@@ -256,5 +257,6 @@ def stats():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=a.port, threaded=True)
+
 
 

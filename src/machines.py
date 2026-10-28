@@ -23,6 +23,9 @@ sys.path.insert(0, r"C:\Users\mikeh\Documents\New OpenCode Project\AfterImage-En
 import ti85  # noqa: E402
 import pyvm  # noqa: E402
 import rv32  # noqa: E402
+import thumb2  # noqa: E402
+import m6502  # noqa: E402
+import dataflow  # noqa: E402
 import mathcheck  # noqa: E402
 
 
@@ -43,6 +46,23 @@ def run_pyvm(code):
 
 def run_rv32(code):
     return rv32.run_asm(code, max_steps=50000)
+
+
+def run_m6502(code):
+    """Assemble + execute 6502 source; result = A at BRK."""
+    try:
+        return m6502.run(code)
+    except Exception as e:
+        return {"ok": False, "err": f"assemble: {e}", "steps": 0,
+                "result": None}
+
+
+def run_thumb2(code):
+    return thumb2.run_asm(code, max_steps=50000)
+
+
+def run_dataflow(code):
+    return dataflow.run_graph(code)
 
 
 def run_z80(code):
@@ -83,6 +103,9 @@ MACHINES = {
     "pyvm": run_pyvm,
     "rv32": run_rv32,
     "z80": run_z80,
+    "m6502": run_m6502,
+    "thumb2": run_thumb2,
+    "dataflow": run_dataflow,
 }
 
 DESCRIPTIONS = {
@@ -94,6 +117,14 @@ DESCRIPTIONS = {
             "address 2048. Registers zero,t0-t6,s0-s11,a0-a7.",
     "z80": "Zilog Z80 assembly (kosarev assembler+core); result = byte "
            "at 0x8000. Registers A,F,B,C,D,E,H,L; org 0x8000 optional.",
+    "m6502": "MOS 6502 assembly (py65 exact semantics); result = A "
+             "register at BRK. Zero page, indexed, indirect modes.",
+    "thumb2": "ARM Thumb-2 text assembly; result = r0 at program end. "
+              "APSR flags, condition suffixes (adds/cmp/beq...), no IT "
+              "blocks. Result convention: mov r0 with the answer.",
+    "dataflow": "Dataflow compute graph (JSON): nodes with ops "
+                "(const/add/sub/mul/div/mod/pow/lt/gt/mux/sqrt), "
+                "readiness-driven firing, no program counter.",
 }
 
 
@@ -161,6 +192,13 @@ if __name__ == "__main__":
                 "rv32": "addi t0, zero, 47\naddi t1, zero, 13\n"
                         "add t2, t0, t1\nsw t2, 2048(x0)",
                 "z80": "    org 0x8000\n    ld a, 6\n    add a, 7\n"
-                       "    ld (0x8000), a\n    halt"}[m]
+                       "    ld (0x8000), a\n    halt",
+                "m6502": "LDA #6\nCLC\nADC #7\nBRK",
+                "thumb2": "movs r0, #6\nadds r0, #7\nbx lr",
+                "dataflow": json.dumps({"nodes": [
+                    {"id": "a", "op": "const", "value": 6},
+                    {"id": "b", "op": "const", "value": 7},
+                    {"id": "s", "op": "add", "a": "a", "b": "b"}],
+                    "output": "s"})}[m]
         r = run(m, code)
         print(f"{m:>5}: ok={r['ok']} result={r['result']} err={r['err']}")

@@ -103,3 +103,19 @@ the negative results.
   config-driven router (engram injection + TI-85 sweep + abacus-ledger
   repair + rv32 sandbox) for any OpenAI-compatible upstream. Verify-only
   mode when no records are given. README section added.
+
+- `src/m6502.py`: MOS 6502 - py65 exact semantics (MIT), table-driven
+  assembler auto-derived from py65's own decode map (zero hand-typed
+  opcodes), py65 disassembler. 4-case selftest.
+- `src/thumb2.py`: ARM Thumb-2 text-assembly interpreter - full APSR
+  (N,Z,C,V) with correct overflow formulas, condition suffixes on
+  every instruction, S-suffix flag writes, memory forms, push/pop,
+  bl/bx. IT blocks declined in v1. 4-case selftest.
+- `src/dataflow.py`: deterministic static-dataflow machine - JSON
+  compute graphs, readiness-driven wave firing in id order, cycle
+  rejection. The no-program-counter member of the family. 6-case
+  selftest.
+- `src/machines.py`: uniform registry - run/assemble/disassemble
+  contract across ti85/pyvm/rv32/z80/m6502/thumb2/dataflow, OpenAI
+  tool schemas, agentic execute_tool_calls. 7-machine smoke: all
+  green.
