@@ -32,10 +32,11 @@ from flask import Flask, request, jsonify
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-sys.path.insert(0, r"C:\Users\mikeh\Documents\New OpenCode Project\AfterImage-Engram\src")
+sys.path.insert(0, os.path.join(HERE, "..", "src"))
 from afterimage_engine_v2 import Retriever  # noqa: E402
 import mathcheck  # noqa: E402
 import ti85  # noqa: E402
+import machines  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--port", type=int, default=8014)
@@ -194,6 +195,58 @@ def engram_search():
     return jsonify({"context": ctx, "units": n})
 
 
+
+@app.post("/v1/machines/chat")
+def machines_chat():
+    """Agentic machine loop: the model gets the hybrid machine family
+    (ti85/pyvm/rv32/z80) as tools; the router executes each call on the
+    real machine and feeds results back until the final answer."""
+    body = request.get_json(force=True)
+    msgs = body.get("messages", [])
+    q = last_user(msgs)
+    if RET is not None:
+        body["messages"], n = inject(msgs, q)
+    tools = list(body.get("tools") or [])
+    have = {t.get("function", {}).get("name") for t in tools}
+    for t in machines.tool_schemas():
+        if t["function"]["name"] not in have:
+            tools.append(t)
+    body["tools"] = tools
+
+    trace = []
+    for iteration in range(6):
+        out, code = upstream(body)
+        choice = (out.get("choices") or [{}])[0]
+        calls = (choice.get("message") or {}).get("tool_calls") or []
+        machine_calls = [c for c in calls
+                         if c.get("function", {}).get("name")
+                         in machines.MACHINES]
+        if not machine_calls:
+            break
+        msg = choice["message"]
+        new_msgs = list(body["messages"]) + [
+            {"role": "assistant", "content": msg.get("content") or "",
+             "tool_calls": calls}]
+        for c in machine_calls:
+            try:
+                args = json.loads(c["function"].get("arguments") or "{}")
+            except Exception:
+                args = {}
+            code_txt = args.get("code") or args.get("asm") or \
+                args.get("expression") or ""
+            r = machines.run(c["function"]["name"], code_txt)
+            trace.append({"machine": c["function"]["name"],
+                          "code": code_txt[:200], "result": r["result"],
+                          "ok": r["ok"], "err": r["err"]})
+            new_msgs.append({"role": "tool",
+                             "tool_call_id": c.get("id", ""),
+                             "content": json.dumps(
+                                 {"result": r["result"], "ok": r["ok"],
+                                  "err": r["err"]})})
+        body["messages"] = new_msgs
+    out["machines"] = {"query": q[:120], "calls": trace}
+    return jsonify(out), 200
+
 @app.get("/engram/stats")
 def stats():
     return jsonify({"records": len(RECORDS),
@@ -203,3 +256,5 @@ def stats():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=a.port, threaded=True)
+
+
